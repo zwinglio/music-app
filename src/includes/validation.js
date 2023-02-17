@@ -37,7 +37,11 @@ export default {
 
                 const message = messages[ctx.rule.name] ? messages[ctx.rule.name] : `The ${ctx.field} field is not valid.`;
                 return message;
-            }
+            },
+            validateOnBlur: true,
+            validateOnChange: true,
+            validateOnInput: false,
+            validateOnModelUpdate: true,
         });
     }
 }
