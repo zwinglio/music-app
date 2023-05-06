@@ -20,6 +20,7 @@
         type="text"
         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
         placeholder="Enter Name"
+        v-model="userData.name"
       />
       <ErrorMessage name="name" class="text-red-600" />
     </div>
@@ -31,6 +32,7 @@
         name="email"
         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
         placeholder="Enter Email"
+        v-model="userData.email"
       />
       <ErrorMessage name="email" class="text-red-600" />
     </div>
@@ -41,6 +43,7 @@
         name="age"
         type="number"
         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
+        v-model="userData.age"
       />
       <ErrorMessage name="age" class="text-red-600" />
     </div>
@@ -53,6 +56,7 @@
           class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
           placeholder="Password"
           v-bind="field"
+          v-model="userData.password"
         />
         <div class="text-red-600" v-for="error in errors" :key="error">
           {{ error }}
@@ -68,6 +72,7 @@
         type="password"
         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
         placeholder="Confirm Password"
+        v-model="userData.confirmPassword"
       />
       <ErrorMessage name="confirmPassword" class="text-red-600" />
     </div>
@@ -78,6 +83,7 @@
         as="select"
         name="country"
         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
+        v-model="userData.country"
       >
         <option value="USA">USA</option>
         <option value="Mexico">Mexico</option>
@@ -93,6 +99,7 @@
         type="checkbox"
         value="1"
         class="w-4 h-4 float-left -ml-6 mt-1 rounded"
+        v-model="userData.tos"
       />
       <label class="inline-block">Accept terms of service</label>
       <ErrorMessage name="tos" class="text-red-600 block" />
@@ -107,6 +114,9 @@
   </vee-form>
 </template>
 <script>
+import { mapActions } from "pinia";
+import useUserStore from "@/stores/user";
+
 export default {
   name: "RegisterForm",
   data() {
@@ -155,17 +165,35 @@ export default {
     };
   },
   methods: {
-    register() {
+    ...mapActions(useUserStore, {
+      createUser: "register",
+    }),
+    async register() {
       this.reg_in_submission = true;
       this.reg_show_alert = true;
       this.reg_alert_variant = "bg-blue-500";
       this.reg_alert_message = "Please wait...";
+
+      let values = this.userData;
+
+      try {
+        await this.createUser(values);
+      } catch (error) {
+        this.reg_in_submission = false;
+        this.reg_show_alert = true;
+        this.reg_alert_variant = "bg-red-500";
+        this.reg_alert_message = error.message;
+        return;
+      }
+
       setTimeout(() => {
         this.reg_in_submission = false;
         this.reg_show_alert = true;
         this.reg_alert_variant = "bg-green-500";
         this.reg_alert_message = "Registration successful!";
-      }, 2000);
+      }, 1000);
+
+      window.location.reload();
     },
   },
 };
